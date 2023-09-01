@@ -15,7 +15,7 @@ You are all Set
 <img width="1405" alt="Screenshot 2023-09-01 at 5 35 24 AM" src="https://github.com/sarthak-kumar-shailendra/dropbox-service/assets/69191344/54dba6b0-852c-405d-8df4-08aacdbac32f">
 
 Meta data is stored in MongoDB Atlas
-Connection String is mentioned in application.properties
+Paste Connection String in application.properties
 
 you can use that to connect to db using Studio 3T
 
