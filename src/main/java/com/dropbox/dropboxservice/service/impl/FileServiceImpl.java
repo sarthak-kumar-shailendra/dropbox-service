@@ -12,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.dropbox.dropboxservice.dto.FileData;
 import com.dropbox.dropboxservice.dto.FileFetchResponse;
 import com.dropbox.dropboxservice.dto.FileUpdateResponse;
+import com.dropbox.dropboxservice.dto.FileUploadReqBody;
 import com.dropbox.dropboxservice.manager.FileCreator;
 import com.dropbox.dropboxservice.model.Status;
 import com.dropbox.dropboxservice.repositories.FileRepository;
@@ -28,16 +29,17 @@ public class FileServiceImpl implements FileService {
     @Autowired
     FileCreator pdfCreator;
 
-    public FileData saveFile(MultipartFile file) {
+    public FileData saveFile(MultipartFile file, String payload) {
         try{
             FileData fileData = new FileData();
             fileData.setFileName(file.getOriginalFilename());
             fileData.setType(file.getContentType());
             fileData.setSize(file.getSize());
+            fileData.setFilePath(payload);
 
             FileData fileDataDB = fileRepository.save(fileData);
 
-            pdfCreator.storeFile(file, fileDataDB.getId());
+            pdfCreator.storeFile(file, fileDataDB.getId(), payload);
 
             return fileDataDB;
         }
@@ -54,7 +56,8 @@ public class FileServiceImpl implements FileService {
             FileFetchResponse fileFetchResponse = new FileFetchResponse();
             if(fileData.isPresent()){
                 FileData fileDataDB = fileData.get();
-                byte[] fileContent=FileCreator.fetchFile(id);
+                String filePathByUser = fileData.get().getFilePath();
+                byte[] fileContent=FileCreator.fetchFile(id, filePathByUser);
                 if(fileContent == null){
                     return null;
                 }
@@ -76,6 +79,15 @@ public class FileServiceImpl implements FileService {
 
     public List<FileData> getAllFiles() {
         return fileRepository.findAll();
+    }
+
+    public List<FileData> getAllChilds(String folder){
+        Integer len=folder.length();
+        if(folder.charAt(len-1)=='/'){
+            String newFolder =folder.substring(0,folder.length()-1);
+            return fileRepository.findByFilePathStartingWith(newFolder);
+        }
+        return fileRepository.findByFilePathStartingWith(folder);
     }
 
     public Status deleteFile(String fileId) {

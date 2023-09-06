@@ -28,6 +28,8 @@ public class FileData {
     // @Lob
     // byte[] data;
     
+    String filePath;
+
     @CreatedDate
     Date createdAt; // UTC
 

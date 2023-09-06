@@ -1,7 +1,11 @@
 package com.dropbox.dropboxservice.manager;
 
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+
+
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 
@@ -18,15 +22,27 @@ public class FileCreator {
 
     private final static Logger logger = LoggerFactory.getLogger(FileCreator.class);
 
-    private final static String filePath = "/Users/sarthakkumar/Downloads/dropbox-service/src/storage/";
+    private final static String filePath = "/Users/sarthakkumar/Documents/dropbox-service/src/storage/";
 
-    public void storeFile(MultipartFile file, String fileId) {
+    public void storeFile(MultipartFile file, String fileId, String filePathByUser) {
 
         try{
-            File path = new File(filePath + 
-                    fileId + ".txt");
-            path.createNewFile();
+            File rootDir = File.listRoots()[0];
             
+            File dir = new File(new File(new File(new File(new File(new File(new File(rootDir, "Users"), "sarthakkumar"),  "Documents"),  "dropbox-service"),  "src"), "storage"), filePathByUser);
+            if (!dir.exists()){
+                dir.mkdirs();
+            }
+            //Path path1 = Paths.get(filePathByUser);
+            //Files.createDirectories(path1.getParent());
+            //File tempDirectory = new File(System.getProperty("java.io.tmpdir"));
+            File path = new File(dir.getAbsolutePath() + "/" + 
+                    fileId + ".txt");
+            //path.getParentFile().mkdirs(); 
+            path.createNewFile();
+
+            System.out.println(dir.getAbsolutePath());
+
             FileOutputStream output = new FileOutputStream(path);
            
             output.write(file.getBytes());
@@ -39,10 +55,10 @@ public class FileCreator {
             logger.error("Error in storing file" + ex.getMessage());
         }
     }
- public static byte[] fetchFile(String fileId) {
+ public static byte[] fetchFile(String fileId, String filePathByUser) {
 
         try{
-            File path = ResourceUtils.getFile(filePath + 
+            File path = ResourceUtils.getFile(filePath + filePathByUser + "/" +  
                     fileId + ".txt");
             
             byte[] fileContent = Files.readAllBytes(path.toPath());

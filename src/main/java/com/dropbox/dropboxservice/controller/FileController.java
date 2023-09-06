@@ -3,6 +3,7 @@ package com.dropbox.dropboxservice.controller;
 import com.dropbox.dropboxservice.dto.FileData;
 import com.dropbox.dropboxservice.dto.FileFetchResponse;
 import com.dropbox.dropboxservice.dto.FileUpdateResponse;
+import com.dropbox.dropboxservice.dto.FileUploadReqBody;
 import com.dropbox.dropboxservice.dto.FileUploadResponse;
 import com.dropbox.dropboxservice.model.Status;
 import com.dropbox.dropboxservice.service.FileService;
@@ -26,9 +27,9 @@ public class FileController {
 
     @PostMapping("/upload")
 
-    public ResponseEntity<Object> uploadFile(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<Object> uploadFile(@RequestParam("file") MultipartFile file, @RequestParam("filePath") String payload) {
             
-        FileData fileDataDB = fileService.saveFile(file);
+        FileData fileDataDB = fileService.saveFile(file, payload);
         if(fileDataDB == null){
             return new ResponseEntity<Object>("Error", HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -90,8 +91,14 @@ public class FileController {
     }
 
     @GetMapping("")
-    public ResponseEntity<Object> getAllFiles() {
+    public ResponseEntity<Object> getAllFiles()  {
         List<FileData> allFiles = fileService.getAllFiles();
+        return new ResponseEntity<Object>(allFiles, HttpStatus.OK);
+    }
+
+     @GetMapping("/getByFileName")
+    public ResponseEntity<Object> getAllChilds(@RequestParam("filePath") String folder)  {
+        List<FileData> allFiles = fileService.getAllChilds(folder);
         return new ResponseEntity<Object>(allFiles, HttpStatus.OK);
     }
 
